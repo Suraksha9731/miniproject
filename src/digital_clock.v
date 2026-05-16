@@ -1,0 +1,47 @@
+module digi_clock(
+    input clk,
+    input reset,
+    output reg [5:0] sec,
+    output reg [5:0] min,
+    output reg [4:0] hour
+);
+
+reg [25:0] counter;
+
+// 1 Hz clock generation (assuming 50 MHz input)
+always @(posedge clk or posedge reset) begin
+    if (reset) begin
+        counter <= 0;
+        sec <= 0;
+        min <= 0;
+        hour <= 0;
+    end else begin
+        if (counter == 50000000) begin
+            counter <= 0;
+
+            // seconds
+            if (sec == 59) begin
+                sec <= 0;
+
+                // minutes
+                if (min == 59) begin
+                    min <= 0;
+
+                    // hours (24-hour format)
+                    if (hour == 23)
+                        hour <= 0;
+                    else
+                        hour <= hour + 1;
+
+                end else
+                    min <= min + 1;
+
+            end else
+                sec <= sec + 1;
+
+        end else
+            counter <= counter + 1;
+    end
+end
+
+endmodule
